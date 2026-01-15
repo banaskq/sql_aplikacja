@@ -30,3 +30,19 @@ SELECT
 FROM cel c
 JOIN uzytkownik u
     ON u.uzytkownik_id = c.uzytkownik_id;
+
+CREATE OR REPLACE TRIGGER trg_update_data_celu
+AFTER UPDATE OF masa_ciala ON uzytkownik
+FOR EACH ROW
+BEGIN
+    UPDATE cel c
+    SET c.data_osiagniecia =
+        TRUNC(
+            SYSDATE +
+            ABS(c.cel_masa_ciala - :NEW.masa_ciala)
+            / (0.5 / 7)
+        )
+    WHERE c.uzytkownik_id = :NEW.uzytkownik_id;
+END;
+/
+
