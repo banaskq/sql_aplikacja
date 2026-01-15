@@ -16,3 +16,17 @@ BEGIN
     :NEW.data_osiagniecia := SYSDATE + v_dni_do_celu;
 END;
 /
+CREATE OR REPLACE VIEW v_cel AS
+SELECT
+    c.cel_id,
+    c.uzytkownik_id,
+    c.cel_masa_ciala,
+    u.masa_ciala AS aktualna_masa,
+    TRUNC(
+        SYSDATE +
+        ABS(c.cel_masa_ciala - u.masa_ciala)
+        / (0.5 / 7)
+    ) AS data_osiagniecia
+FROM cel c
+JOIN uzytkownik u
+    ON u.uzytkownik_id = c.uzytkownik_id;
