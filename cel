@@ -1,0 +1,18 @@
+CREATE OR REPLACE TRIGGER trg_cel_data
+BEFORE INSERT ON cel
+FOR EACH ROW
+DECLARE
+    v_aktualna_masa NUMBER;
+    v_tempo_dzien NUMBER := 0.5 / 7; 
+    v_dni_do_celu NUMBER;
+BEGIN
+    SELECT masa_ciala
+    INTO v_aktualna_masa
+    FROM uzytkownik
+    WHERE UZYTKOWNIK_ID = :NEW.UZYTKOWNIK_ID;
+
+
+    v_dni_do_celu := ABS(:NEW.cel_masa_ciala - v_aktualna_masa) / v_tempo_dzien;
+    :NEW.data_osiagniecia := SYSDATE + v_dni_do_celu;
+END;
+/
