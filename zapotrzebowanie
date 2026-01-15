@@ -1,0 +1,20 @@
+DECLARE
+    v_wiek UZYTKOWNIK.WIEK%TYPE;
+    v_masa UZYTKOWNIK.MASA_CIALA%TYPE;
+    v_wzrost UZYTKOWNIK.WZROST%TYPE;
+    v_plec UZYTKOWNIK.PLEC%TYPE;
+    v_bmr NUMBER;
+BEGIN
+    SELECT WIEK, MASA_CIALA, WZROST, PLEC
+    INTO v_wiek, v_masa, v_wzrost, v_plec
+    FROM UZYTKOWNIK
+    WHERE UZYTKOWNIK_ID = :PODSUMOWANIE_DNIA_UZYTKOWNIK_ID;
+    
+    IF v_plec = 'M' THEN
+        v_bmr := 10*v_masa + 6.25*v_wzrost - 5*v_wiek + 5;
+    ELSIF v_plec = 'K' THEN
+        v_bmr := 10*v_masa + 6.25*v_wzrost - 5*v_wiek - 161;
+    END IF;
+
+    :PODSUMOWANIE_DNIA_KCAL_ZAPOTRZEBOWANIE := v_bmr;
+END;
