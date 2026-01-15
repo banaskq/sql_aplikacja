@@ -1,0 +1,22 @@
+CREATE OR REPLACE TRIGGER trg_update_podsumowanie_dnia
+AFTER INSERT OR UPDATE OR DELETE ON POSILEK
+DECLARE
+BEGIN
+ 
+    MERGE INTO PODSUMOWANIE_DNIA pd
+    USING (
+        SELECT 
+            p.UZYTKOWNIK_ID,
+            p.DATA,
+            NVL(SUM(p.SUMA_KCAL),0) AS kcal_przyjete
+        FROM POSILEK p
+        GROUP BY p.UZYTKOWNIK_ID, p.DATA
+    ) pos_daily
+    ON (pd.UZYTKOWNIK_ID = pos_daily.UZYTKOWNIK_ID AND pd.DATA = pos_daily.DATA)
+    WHEN MATCHED THEN
+        UPDATE SET pd.KCAL_PRZYJETE = pos_daily.kcal_przyjete
+    WHEN NOT MATCHED THEN
+        INSERT (PODSUMOWANIE_ID, DATA, KCAL_PRZYJETE, KCAL_SPALONE, SUMA_KCAL, UZYTKOWNIK_ID)
+        VALUES (PODSUMOWANIE_SEQ.NEXTVAL, pos_daily.DATA, pos_daily.kcal_przyjete, 0, pos_daily.kcal_przyjete, pos_daily.UZYTKOWNIK_ID);
+END;
+/
